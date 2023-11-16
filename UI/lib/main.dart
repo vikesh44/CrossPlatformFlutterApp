@@ -1,3 +1,4 @@
+import 'package:expense_manager_ui/todoList.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(
         title: 'Expense Table',
       ),
@@ -43,234 +45,107 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Future<List<ParseObject>> _expensesFuture;
+  var password = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _expensesFuture = _fetchExpenses();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Expense Table'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              // Implement refresh logic
-              setState(() {
-                _expensesFuture = _fetchExpenses();
-              });
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<ParseObject>>(
-        future: _expensesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            final expenses = snapshot.data ?? [];
-            return Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    FloatingActionButton(
-                      onPressed: () {
-                        _showAddExpenseDialog(context);
-                      },
-                      child: Icon(Icons.add),
-                    ),
-                    SizedBox(width: 16.0),
-                    FloatingActionButton(
-                      onPressed: () {
-                        // Implement refresh logic
-                        setState(() {
-                          _expensesFuture = _fetchExpenses();
-                        });
-                      },
-                      child: Icon(Icons.refresh),
-                    ),
-                  ],
-                ),
-                DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text('Title'),
-                    ),
-                    DataColumn(
-                      label: Text('Description'),
-                    ),
-                    DataColumn(
-                      label: Text('Amount'),
-                    ),
-                    DataColumn(
-                      label: Text('Action'),
-                    ),
-                  ],
-                  rows: expenses.map((expense) {
-                    return DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text(expense['Title'] ?? '')),
-                        DataCell(Text(expense['Description'] ?? '')),
-                        DataCell(Text('\$${expense['Amount'] ?? ''}')),
-                        DataCell(Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () {
-                                _showAddExpenseDialog(context, expense);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                _deleteExpense(expense);
-                              },
-                            ),
-                          ],
-                        )),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ],
-            );
-          }
-        },
-      ),
-    );
-  }
-
-  Future<List<ParseObject>> _fetchExpenses() async {
-    final queryBuilder = QueryBuilder(ParseObject('ExpenseManager'))
-      ..orderByDescending('createdAt');
-    final response = await queryBuilder.query();
-    if (response.success && response.results != null) {
-      return response.results!.cast<ParseObject>();
-    } else {
-      throw Exception('Failed to fetch expenses');
-    }
-  }
-
-  Future<void> _addExpense(
-      String title, String description, String amount) async {
-    final expense = ParseObject('ExpenseManager')
-      ..set('Title', title)
-      ..set('Description', description)
-      ..set('Amount', double.parse(amount));
-
-    final response = await expense.save();
-    if (response.success) {
-      setState(() {
-        _expensesFuture = _fetchExpenses();
-      });
-    }
-    else {
-      print('Failed to add expense: ${response.error!.message}');
-    }
-  }
-
-  Future<void> _updateExpense(ParseObject expense, String title,
-      String description, String amount) async {
-    expense.set('Title', title);
-    expense.set('Description', description);
-    expense.set('Amount', double.parse(amount));
-
-    final response = await expense.save();
-    if (response.success) {
-      setState(() {
-        _expensesFuture = _fetchExpenses();
-      });
-    }
-    else {
-      print('Failed to update expense: ${response.error!.message}');
-    }
-  }
-
-  Future<void> _deleteExpense(ParseObject expense) async {
-    final response = await expense.delete();
-    if (response.success) {
-      setState(() {
-        _expensesFuture = _fetchExpenses();
-      });
-    } else {
-      print('Failed to delete expense: ${response.error!.message}');
-    }
-  }
-
-  Future<void> _showAddExpenseDialog(BuildContext context,
-      [ParseObject? existingExpense]) async {
-    TextEditingController titleController =
-        TextEditingController(text: existingExpense?['Title'] ?? '');
-    TextEditingController descriptionController =
-        TextEditingController(text: existingExpense?['Description'] ?? '');
-    TextEditingController amountController = TextEditingController(
-        text: existingExpense?['Amount']?.toString() ?? '');
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(existingExpense != null ? 'Edit Expense' : 'Add Expense'),
-          content: Container(
-            height: MediaQuery.of(context).size.height * 0.25,
+      body: Center(
+        child: Container(
+            width: 300,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(labelText: 'Title'),
+                  //keyboardType: TextInputType.number, // this is use to change the keyboard type
+                  // decoration: InputDecoration(
+                  //   // this is use to give decorations in our text field
+                  //     border: OutlineInputBorder(
+                  //       // this is use to give outline to our text field
+                  //         borderRadius: BorderRadius.circular(30))),
+                  decoration: InputDecoration(
+                      // this is use to give decorations in our text field
+                      hintText: 'User-Name', // this is use to  give hint
+                      enabledBorder: OutlineInputBorder(
+                          // this is use when our text field is unfocused
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide(color: Colors.blue)),
+                      focusedBorder: OutlineInputBorder(
+                          // this is use when our text field is focused
+                          borderSide: BorderSide(
+                        // in this we can control the animations of border sides
+                        color: Colors.red,
+                        width: 3,
+                      )),
+                      prefixIcon: Icon(
+                        Icons.person,
+                        color: Colors.grey,
+                      )
+
+                      //suffixText: 'hello ' // this is use to give something at the last of text field
+                      // suffixIcon: IconButton(
+                      //   icon: Icon(Icons.remove_red_eye, color: Colors.black,),
+                      //   onPressed: (){
+                      //
+                      //   },
+                      // ),
+
+                      ),
+                ),
+                Container(
+                  height: 20,
                 ),
                 TextField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(labelText: 'Description'),
+                  obscureText: true,
+                  // this is use to hide our text field
+                  obscuringCharacter: '*',
+                  //this is use to give hidden char symbol
+                  controller: password,
+                  // this is for to retrieve text from user, password is predefine by us
+                  decoration: InputDecoration(
+                    // this is use to give decorations in our text field
+                    hintText: 'Enter password',
+                    // this is use to  give hint
+                    enabledBorder: OutlineInputBorder(
+                        // this is use when our text field is unfocused
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(color: Colors.blue)),
+                    focusedBorder: OutlineInputBorder(
+                        // this is use when our text field is focused
+                        borderSide: BorderSide(
+                      // in this we can control the animations of border sides
+                      color: Colors.red,
+                      width: 3,
+                    )),
+
+                    //suffixText: 'hello ' // this is use to give something at the last of text field
+                    prefixIcon: Icon(
+                      Icons.lock,
+                      color: Colors.grey,
+                    ),
+
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {},
+                    ),
+                  ),
                 ),
-                TextField(
-                  controller: amountController,
-                  decoration: InputDecoration(labelText: 'Amount'),
-                  keyboardType: TextInputType.number,
-                ),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => todoList()));
+                    },
+                    child: Text('login'))
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (existingExpense != null) {
-                  _updateExpense(
-                    existingExpense,
-                    titleController.text,
-                    descriptionController.text,
-                    amountController.text,
-                  );
-                } else {
-                  _addExpense(
-                    titleController.text,
-                    descriptionController.text,
-                    amountController.text,
-                  );
-                }
-                Navigator.pop(context);
-              },
-              child: Text(existingExpense != null ? 'Save' : 'Add'),
-            ),
-          ],
-        );
-      },
+            )),
+      ),
     );
   }
 }
