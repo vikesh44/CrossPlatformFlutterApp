@@ -1,23 +1,35 @@
-import 'package:expense_manager_ui/todoList.dart';
+// final keyApplicationId = 'hOoI6HM0LI94JaXZLVwwRuZlNRkz0zN1w636fcth';
+// final keyClientKey = '21bKnetARHhrDOL0J5FmSDDfK2fm3HvmBbPHzjwm';
+// final keyParseServerUrl = 'https://parseapi.back4app.com';
+import 'package:expense_manager_ui/SignUp.dart';
+import 'package:expense_manager_ui/TodoList.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
+dynamic non1;
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final keyApplicationId = 'hOoI6HM0LI94JaXZLVwwRuZlNRkz0zN1w636fcth';
-  final keyClientKey = '21bKnetARHhrDOL0J5FmSDDfK2fm3HvmBbPHzjwm';
-  final keyParseServerUrl = 'https://parseapi.back4app.com';
+  const keyApplicationId = 'hOoI6HM0LI94JaXZLVwwRuZlNRkz0zN1w636fcth';
+  const keyClientKey = '21bKnetARHhrDOL0J5FmSDDfK2fm3HvmBbPHzjwm';
+  const keyParseServerUrl = 'https://parseapi.back4app.com';
+  autoSendSessionId:
+  true;
+  debug:
+  true;
 
   await Parse().initialize(keyApplicationId, keyParseServerUrl,
       clientKey: keyClientKey, autoSendSessionId: true);
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: MyHomePage(
         title: 'Expense Table',
@@ -46,6 +58,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var password = TextEditingController();
+  var userName = TextEditingController();
+  String msg = "";
+  bool hide = true;
+  var count = 1;
+  Icon icon = const Icon(
+    Icons.visibility,
+    color: Colors.grey,
+  );
 
   @override
   void initState() {
@@ -55,53 +75,44 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+        body: Center(
+      child: Card(
+        shadowColor: Colors.red,
+        elevation: 11,
         child: Container(
-            width: 300,
+            width: 350,
+            height: 350,
+            //padding: const EdgeInsets.all(11),
+            padding: const EdgeInsets.fromLTRB(11, 11, 11, 3),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextField(
-                  //keyboardType: TextInputType.number, // this is use to change the keyboard type
-                  // decoration: InputDecoration(
-                  //   // this is use to give decorations in our text field
-                  //     border: OutlineInputBorder(
-                  //       // this is use to give outline to our text field
-                  //         borderRadius: BorderRadius.circular(30))),
+                  controller: userName,
                   decoration: InputDecoration(
                       // this is use to give decorations in our text field
                       hintText: 'User-Name', // this is use to  give hint
                       enabledBorder: OutlineInputBorder(
                           // this is use when our text field is unfocused
                           borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide(color: Colors.blue)),
-                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.blue)),
+                      focusedBorder: const OutlineInputBorder(
                           // this is use when our text field is focused
                           borderSide: BorderSide(
                         // in this we can control the animations of border sides
                         color: Colors.red,
                         width: 3,
                       )),
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.person,
-                        color: Colors.grey,
-                      )
-
-                      //suffixText: 'hello ' // this is use to give something at the last of text field
-                      // suffixIcon: IconButton(
-                      //   icon: Icon(Icons.remove_red_eye, color: Colors.black,),
-                      //   onPressed: (){
-                      //
-                      //   },
-                      // ),
-
-                      ),
+                        color: Colors.black,
+                      )),
                 ),
                 Container(
                   height: 20,
                 ),
                 TextField(
-                  obscureText: true,
+                  obscureText: hide,
                   // this is use to hide our text field
                   obscuringCharacter: '*',
                   //this is use to give hidden char symbol
@@ -114,8 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     enabledBorder: OutlineInputBorder(
                         // this is use when our text field is unfocused
                         borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide(color: Colors.blue)),
-                    focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.blue)),
+                    focusedBorder: const OutlineInputBorder(
                         // this is use when our text field is focused
                         borderSide: BorderSide(
                       // in this we can control the animations of border sides
@@ -124,28 +135,114 @@ class _MyHomePageState extends State<MyHomePage> {
                     )),
 
                     //suffixText: 'hello ' // this is use to give something at the last of text field
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.lock,
-                      color: Colors.grey,
+                      color: Colors.black,
                     ),
 
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        Icons.remove_red_eye,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {},
+                      icon: icon,
+                      onPressed: () {
+                        setState(() {
+                          if (count % 2 != 0) {
+                            hide = false;
+
+                            icon = const Icon(
+                              Icons.visibility_off,
+                              color: Colors.grey,
+                            );
+
+                            count++;
+                          } else {
+                            hide = true;
+
+                            icon = const Icon(
+                              Icons.visibility,
+                              color: Colors.grey,
+                            );
+
+                            count++;
+                          }
+                        });
+                      },
                     ),
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                  child: Text(
+                    msg,
+                    style: const TextStyle(color: Colors.red, fontSize: 17),
                   ),
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => todoList()));
+                      if (userName.text.toString() == '' ||
+                          password.text.toString() == '') {
+                        setState(() {
+                          msg = 'Empty User-Name or Password';
+                          //print('Query failed: ${response.error?.message}');
+                        });
+                      } else {
+                        Future<void> fetchData() async {
+                          final query = QueryBuilder(ParseObject('Auth'))
+                            ..whereEqualTo(
+                                'Username',
+                                userName.text
+                                    .toString()) // Replace with your specific column and value
+                            ..whereEqualTo(
+                                'Password', password.text.toString());
+
+                          try {
+                            final response = await query.query();
+                            if (response.success && response.results != null) {
+                              for (final result in response.results!) {
+                                // Access and use the data from the specified column
+                                var columnValue1 = result.get('Username');
+                                var columnValue2 = result.get('Password');
+                                print(
+                                    'Data from Back4App, Column: $columnValue1');
+                                print(
+                                    'Data from Back4App, Column: $columnValue2');
+
+                                // ignore: use_build_context_synchronously
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => TodoList()));
+                              }
+                            } else {
+                              setState(() {
+                                // const AlertDialog(
+                                //   title: Text('Error'),
+                                //   content: Text('Invalid User-Name or Password'),
+                                // );
+                                msg = 'Invalid User-Name or Password';
+                                print(
+                                    'Query failed: ${response.error?.message}');
+                              });
+                            }
+                          } catch (e) {
+                            print('Error: $e');
+                          }
+                        }
+
+                        fetchData();
+                      }
                     },
-                    child: Text('login'))
+                    child: const Text('Login')),
+                Container(
+                  height: 20,
+                ),
+                TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => SignUp()));
+                    },
+                    child: const Text('Don\'t have Account?'))
               ],
             )),
       ),
-    );
+    ));
   }
 }

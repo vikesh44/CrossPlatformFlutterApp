@@ -1,28 +1,29 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
-class todoList extends StatefulWidget {
+// ignore: camel_case_types
+class TodoList extends StatefulWidget {
 
-  todoList() {
+  TodoList({super.key}) {
     initializeBack4App();
   }
 
   Future<void> initializeBack4App() async {
     WidgetsFlutterBinding.ensureInitialized();
-    final keyApplicationId = 'hOoI6HM0LI94JaXZLVwwRuZlNRkz0zN1w636fcth';
-    final keyClientKey = '21bKnetARHhrDOL0J5FmSDDfK2fm3HvmBbPHzjwm';
-    final keyParseServerUrl = 'https://parseapi.back4app.com';
+    const keyApplicationId = 'hOoI6HM0LI94JaXZLVwwRuZlNRkz0zN1w636fcth';
+    const keyClientKey = '21bKnetARHhrDOL0J5FmSDDfK2fm3HvmBbPHzjwm';
+    const keyParseServerUrl = 'https://parseapi.back4app.com';
 
     await Parse().initialize(keyApplicationId, keyParseServerUrl,
         clientKey: keyClientKey, autoSendSessionId: true);
   }
 
   @override
-  State<todoList> createState() => _todoListState();
+  State<TodoList> createState() => _TodoListState();
 }
 
-class _todoListState extends State<todoList> {
+// ignore: camel_case_types
+class _TodoListState extends State<TodoList> {
   late Future<List<ParseObject>> _expensesFuture;
   var password = TextEditingController();
 
@@ -34,99 +35,98 @@ class _todoListState extends State<todoList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Expense Table'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              // Implement refresh logic
-              setState(() {
-                _expensesFuture = _fetchExpenses();
-              });
+    return WillPopScope(
+        onWillPop: () async {
+          // Return false to block the back button
+          return false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Expense Table'),
+            automaticallyImplyLeading: false, // Set to false to hide the back button
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  // Implement refresh logic
+                  setState(() {
+                    _showAddExpenseDialog(context);
+                  });
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () {
+                  // Implement refresh logic
+                  setState(() {
+                    _expensesFuture = _fetchExpenses();
+                  });
+                },
+              ),
+            ],
+          ),
+          body: FutureBuilder<List<ParseObject>>(
+            future: _expensesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                final expenses = snapshot.data ?? [];
+                return Column(
+                  children: [
+                    DataTable(
+                      columnSpacing: 35,
+                      columns: const <DataColumn>[
+                        DataColumn(
+                          label: Text('Title'),
+                        ),
+                        DataColumn(
+                          label: Text('Description'),
+                        ),
+                        DataColumn(
+                          label: Text('Amount'),
+                        ),
+                        DataColumn(
+                          label: Padding(
+                            padding: EdgeInsets.fromLTRB(20,0,0,0),
+                            child: Text('Action'),
+                          ),
+                        ),
+                      ],
+                      rows: expenses.map((expense) {
+                        return DataRow(
+                          cells: <DataCell>[
+                            DataCell(Text(expense['Title'] ?? '')),
+                            DataCell(Text(expense['Description'] ?? '')),
+                            DataCell(Text('\$${expense['Amount'] ?? ''}')),
+                            DataCell(Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    _showAddExpenseDialog(context, expense);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    _deleteExpense(expense);
+                                  },
+                                ),
+                              ],
+                            )),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                );
+              }
             },
           ),
-        ],
-      ),
-      body: FutureBuilder<List<ParseObject>>(
-        future: _expensesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            final expenses = snapshot.data ?? [];
-            return Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    FloatingActionButton(
-                      onPressed: () {
-                        _showAddExpenseDialog(context);
-                      },
-                      child: Icon(Icons.add),
-                    ),
-                    SizedBox(width: 16.0),
-                    FloatingActionButton(
-                      onPressed: () {
-                        // Implement refresh logic
-                        setState(() {
-                          _expensesFuture = _fetchExpenses();
-                        });
-                      },
-                      child: Icon(Icons.refresh),
-                    ),
-                  ],
-                ),
-                DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text('Title'),
-                    ),
-                    DataColumn(
-                      label: Text('Description'),
-                    ),
-                    DataColumn(
-                      label: Text('Amount'),
-                    ),
-                    DataColumn(
-                      label: Text('Action'),
-                    ),
-                  ],
-                  rows: expenses.map((expense) {
-                    return DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text(expense['Title'] ?? '')),
-                        DataCell(Text(expense['Description'] ?? '')),
-                        DataCell(Text('\$${expense['Amount'] ?? ''}')),
-                        DataCell(Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () {
-                                _showAddExpenseDialog(context, expense);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                _deleteExpense(expense);
-                              },
-                            ),
-                          ],
-                        )),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ],
-            );
-          }
-        },
-      ),
+        )
     );
   }
 
@@ -199,22 +199,22 @@ class _todoListState extends State<todoList> {
       builder: (context) {
         return AlertDialog(
           title: Text(existingExpense != null ? 'Edit Expense' : 'Add Expense'),
-          content: Container(
+          content: SizedBox(
             height: MediaQuery.of(context).size.height * 0.25,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
                   controller: titleController,
-                  decoration: InputDecoration(labelText: 'Title'),
+                  decoration: const InputDecoration(labelText: 'Title'),
                 ),
                 TextField(
                   controller: descriptionController,
-                  decoration: InputDecoration(labelText: 'Description'),
+                  decoration: const InputDecoration(labelText: 'Description'),
                 ),
                 TextField(
                   controller: amountController,
-                  decoration: InputDecoration(labelText: 'Amount'),
+                  decoration: const InputDecoration(labelText: 'Amount'),
                   keyboardType: TextInputType.number,
                 ),
               ],
@@ -225,7 +225,7 @@ class _todoListState extends State<todoList> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
