@@ -22,7 +22,11 @@ The app utilizes Back4App as the backend for storing and retrieving task data. B
 ### Prerequisites
 
 - Flutter installed on your machine
+    - [Flutter Install Guide](https://flutter.dev/docs/get-started/install)
 - Back4App account
+    - [Back4App Page](https://www.back4app.com/)
+- Any IDE of your choice
+    - Preferred to use [Android Studio](https://developer.android.com/studio)
 
 ### Installation
 
@@ -33,14 +37,14 @@ The app utilizes Back4App as the backend for storing and retrieving task data. B
 | Auth  | Username  | Yes | String |  |
 | Auth  | Password  | Yes | String |  |
 
-| Class Name  | Column Name | Is Required Field? | Default Value |
-| ------------- | ------------- | ------------- | ------------- |
+| Class Name  | Column Name | Is Required Field? | Value Type | Default Value |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
 | Todo  | Title  | Yes | String |  |
 | Todo  | Description  | No | String |  |
 | Todo  | Done  | Yes | Boolean | false |
 
-| Class Name  | Column Name | Is Required Field? | Default Value |
-| ------------- | ------------- | ------------- | ------------- |
+| Class Name  | Column Name | Is Required Field? | Value Type | Default Value |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
 | ExpenseManager  | Title  | Yes | String |  |
 | ExpenseManager  | Description  | No | String |  |
 | ExpenseManager  | Amount  | Yes | Number | 0 |
