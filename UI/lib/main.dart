@@ -1,6 +1,3 @@
-// final keyApplicationId = 'hOoI6HM0LI94JaXZLVwwRuZlNRkz0zN1w636fcth';
-// final keyClientKey = '21bKnetARHhrDOL0J5FmSDDfK2fm3HvmBbPHzjwm';
-// final keyParseServerUrl = 'https://parseapi.back4app.com';
 import 'package:expense_manager_ui/SignUp.dart';
 import 'package:expense_manager_ui/TodoList.dart';
 import 'package:flutter/material.dart';
@@ -209,6 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
+                                        // builder: (context) => TodoList()));
                                         builder: (context) => TodoList()));
                               }
                             } else {
