@@ -178,13 +178,39 @@ class _ExpenseManagerState extends State<ExpenseManager> {
   }
 
   Future<void> _deleteExpense(ParseObject expense) async {
-    final response = await expense.delete();
-    if (response.success) {
-      setState(() {
-        _expensesFuture = _fetchExpenses();
-      });
-    } else {
-      print('Failed to delete expense: ${response.error!.message}');
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Confirm Deletion'),
+          content: Text('Are you sure you want to delete this expense?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            ElevatedButton(
+              child: Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete ?? false) {
+      final response = await expense.delete();
+      if (response.success) {
+        setState(() {
+          _expensesFuture = _fetchExpenses();
+        });
+      } else {
+        print('Failed to delete expense: ${response.error!.message}');
+      }
     }
   }
 

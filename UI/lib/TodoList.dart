@@ -240,7 +240,7 @@ class _TodoListState extends State<TodoList> {
 
   Future<void> updateTodo(
       ParseObject todo, String title, String description) async {
-    todo.set('Tone', title);
+    todo.set('Title', title);
     todo.set('Description', description);
     final response = await todo.save();
     if (response.success) {
@@ -253,14 +253,40 @@ class _TodoListState extends State<TodoList> {
   }
 
   Future<void> deleteTodo(String id) async {
-    var todo = ParseObject('Todo')..objectId = id;
-    final response = await todo.delete();
-    if (response.success) {
-      setState(() {
-        _todoFuture = getTodo();
-      });
-    } else {
-      print('Failed to delete todo item: ${response.error!.message}');
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Confirm Deletion'),
+          content: Text('Are you sure you want to delete this task?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            ElevatedButton(
+              child: Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete ?? false) {
+      var todo = ParseObject('Todo')..objectId = id;
+      final response = await todo.delete();
+      if (response.success) {
+        setState(() {
+          _todoFuture = getTodo();
+        });
+      } else {
+        print('Failed to delete todo item: ${response.error!.message}');
+      }
     }
   }
 
